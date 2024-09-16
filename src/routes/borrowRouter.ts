@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { createNewLoan, getLoan } from "../handlers/BorrowHandlers";
+import { createNewLoan, getLoan, returnLoan } from "../handlers/BorrowHandlers";
 
 const borrowRouter = Router();
 
@@ -7,6 +7,6 @@ borrowRouter.get('/', getLoan)
 borrowRouter.get('/:user_code', getLoan)
 
 borrowRouter.post('/create', createNewLoan)
-// borrowRouter.post('/return', )
+borrowRouter.post('/return', returnLoan)
 
 export default borrowRouter
