@@ -24,13 +24,17 @@
     "jwt-decode": "^4.0.0",
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
-    "pg": "^8.11.5"
+    "pg": "^8.11.5",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.1"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
     "@types/express": "^4.17.21",
     "@types/jsonwebtoken": "^9.0.6",
     "@types/pg": "^8.11.6",
+    "@types/swagger-jsdoc": "^6.0.4",
+    "@types/swagger-ui-express": "^4.1.6",
     "concurrently": "^8.2.2",
     "dotenv": "^16.4.5",
     "eslint": "^8.57.0",
