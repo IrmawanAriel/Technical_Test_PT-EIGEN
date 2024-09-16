@@ -16,6 +16,10 @@ This repository contains the code for the Library project, which includes a comp
 3. Run `npm run dev`
 4. Open `http://localhost:9000` in your browser
 
+# API Documentation
+1. Run `npm run dev`
+2. Open `http://localhost:9000/Api-docs` in your browser
+
 # Agorithm Test Case
 1. Cd to file 'ALgoritma_Test'
 2. Run `node <file>.js`
