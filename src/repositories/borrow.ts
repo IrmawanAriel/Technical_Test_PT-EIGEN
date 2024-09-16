@@ -1,10 +1,50 @@
-import { QueryResult, Query } from 'pg';
 import db from "../config/Database";
 import { iMember } from "../models/member";
 
 export const CreateLoan = async (member_code: string, book_code: string): Promise<{ message: string, data?: any, error?: string }> => {
     try {
         await db.query('BEGIN');
+        // Mengecek apakah penalti sudah berakhir
+        const checkPenaltyQuery = `
+        SELECT penalty_end_date 
+        FROM member 
+        WHERE code = $1 AND is_penalized = true;
+        `;
+        const penaltyResult = await db.query(checkPenaltyQuery, [member_code]);
+
+        if (penaltyResult.rows.length > 0) {
+            const penaltyEndDate = new Date(penaltyResult.rows[0].penalty_end_date);
+            const now = new Date();
+
+            if (now > penaltyEndDate) {
+                const updatePenaltyStatusQuery = `
+                    UPDATE member 
+                    SET is_penalized = false,
+                     penalty_end_date = NULL
+                    WHERE code = $1;
+                `;
+                var res = await db.query(updatePenaltyStatusQuery, [member_code]);
+                if(res.rowCount === 0 ){
+                    db.query("ROLLBACK")
+                    return {
+                        message: "Failed to erase penalty"
+                    };
+                }
+            }
+        }
+
+
+        var Query = `
+        SELECT code FROM books WHERE code = $1;
+        `
+        var values = [book_code];
+        var result1 = await db.query(Query, values);
+        if (result1.rows.length === 0) {
+            await db.query('ROLLBACK');
+            return {
+                message: "This book is not available"
+            };
+        }
 
         var query1 = `
             SELECT COUNT(bb.book_code) 
@@ -117,12 +157,33 @@ export const CreateReturn = async (member_code: string, book_code: string): Prom
 
     try {
         db.query("BEGIN");
+        // Mengecek apakah penalti sudah berakhir
+        const checkPenaltyQuery = `
+        SELECT penalty_end_date 
+        FROM member 
+        WHERE code = $1 AND is_penalized = true;
+        `;
+        const penaltyResult = await db.query(checkPenaltyQuery, [member_code]);
+
+        if (penaltyResult.rows.length > 0) {
+            const penaltyEndDate = new Date(penaltyResult.rows[0].penalty_end_date);
+            const now = new Date();
+
+            if (now > penaltyEndDate) {
+                const updatePenaltyStatusQuery = `
+                    UPDATE member 
+                    SET is_penalized = false 
+                    WHERE code = $1;
+                `;
+                await db.query(updatePenaltyStatusQuery, [member_code]);
+            }
+        }
 
         var Query = `
         SELECT book_code FROM borrowed_books WHERE user_code = $1 and status = 'borrowed';
-    `
-        var values1 = [member_code];
-        var result1 = await db.query(Query, values1);
+        `
+        var values = [member_code];
+        var result1 = await db.query(Query, values);
         if (result1.rows.length === 0) {
             await db.query('ROLLBACK');
             return {
@@ -155,8 +216,11 @@ export const CreateReturn = async (member_code: string, book_code: string): Prom
 
         // Cek apakah sudah lebih dari 7 hari
         if (selisihTanggal > 7) {
+            const kelipatanTerlambat = Math.floor((selisihTanggal - 7) / 7) + 1; // Jumlah kelipatan 7 hari (dimulai dari keterlambatan pertama)
+            const tambahanHariPenalti = kelipatanTerlambat * 3;
+
             const penaltyEndDate = new Date();
-            penaltyEndDate.setDate(penaltyEndDate.getDate() + 3); // penalty 3 hari
+            penaltyEndDate.setDate(penaltyEndDate.getDate() + tambahanHariPenalti);
 
             const queryPenalty = `
             UPDATE member
@@ -176,9 +240,7 @@ export const CreateReturn = async (member_code: string, book_code: string): Prom
 
         }
 
-
         // pengembalian stock buku tersebut 
-
         var Query3 = `UPDATE books
                 SET stock = stock + 1
                 WHERE code = $1`
