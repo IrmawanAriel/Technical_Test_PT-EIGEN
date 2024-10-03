@@ -13,5 +13,5 @@ const test4 = (Matrix) => {
     console.log("Selisih:", diagonal1-diagonal2);
 
 }
-Matrix = [[1, 2, 0], [4, 5, 6], [7, 8, 9]]
+Matrix = [[1, 2, 0], [4, 5, 6], [7, 8, 9]] //two dimensional array
 test4(Matrix)
