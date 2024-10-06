@@ -110,9 +110,6 @@
  *       404:
  *         description: Member not found
  */
-
-
-
 import { Router } from "express";
 import { CreateMember, GetAll } from "../handlers/MemberHandlers";
 

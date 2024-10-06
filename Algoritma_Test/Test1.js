@@ -1,6 +1,5 @@
 var Test1 = function (s) {
 
-
     var temp = s.split("");
     var reversedArray = [];
     var numberArray = []
